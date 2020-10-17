@@ -1,0 +1,58 @@
+
+\documentclass[12pt]{article}
+\usepackage{listings}
+\usepackage{pdfpages}
+\usepackage{amsmath}
+%\usepackage[legalpaper, margin=1in]{geometry}
+\begin{document}
+\begin{titlepage}
+   \begin{center}
+       \vspace*{1cm}
+       \Large
+       Exam 1
+       \normalsize
+
+       \vspace{0.5cm}
+
+       Author: Gabriel Hofer
+
+       \vspace{0.5cm}
+
+       Course: CSC-410 Parallel Computing
+
+       \vspace{0.5cm}
+
+       Instructor: Dr. Karlsson
+       \vspace{0.5cm}
+
+       Due: October 19, 2020
+
+       \vfill
+
+       Computer Science and Engineering\
+       South Dakota School of Mines and Technology\
+   \end{center}
+\end{titlepage}
+%------------------------------------------------------------------------------------
+\newpage
+
+\subsection*{Floyd's algorithm:}
+
+
+
+\begin{lstlisting}[frame=single,language=Python, caption=Floyd's Algorithm]
+for k in range(0,n):
+  for i in range(0,n):
+    for j in range(0,n):
+      A[i,j] = min(A[i,j], A[i,k] + A[k,j])
+\end{lstlisting}
+
+\subsection*{Testing for Correctness}
+
+insert correctness testing code. 
+
+
+
+
+\end{document}
+
