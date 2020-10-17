@@ -7,6 +7,14 @@
 
 [tutorialspoint CUDA](https://www.tutorialspoint.com/cuda/index.htm)
 
+[blocks, threads, and other good stuff](http://www.shodor.org/media/content/petascale/materials/UPModules/dynamicProgrammingPartI/dynProgPt1ModuleDoc.pdf)
+
+[Thread block](https://en.wikipedia.org/wiki/Thread_block_(CUDA_programming))
+
+[medium article 2](https://medium.com/@saadmahmud14/parallel-programming-with-cuda-tutorial-part-4-the-floyd-warshall-algorithm-5e1281c46bf6)
+
+[slide deck](https://www.nvidia.com/docs/IO/116711/sc11-cuda-c-basics.pdf)
+
 ## NVIDIA
 [installing nvidia drivers](https://www.cyberciti.biz/faq/ubuntu-linux-install-nvidia-driver-latest-proprietary-driver/)
 
