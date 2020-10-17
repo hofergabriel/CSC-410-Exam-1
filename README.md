@@ -15,6 +15,10 @@
 
 [slide deck](https://www.nvidia.com/docs/IO/116711/sc11-cuda-c-basics.pdf)
 
+[more](http://users.wfu.edu/choss/CUDA/docs/Lecture%205.pdf)
+
+[grids and blocks](https://cs.calvin.edu/courses/cs/374/CUDA/CUDA-Thread-Indexing-Cheatsheet.pdf)
+
 ## NVIDIA
 [installing nvidia drivers](https://www.cyberciti.biz/faq/ubuntu-linux-install-nvidia-driver-latest-proprietary-driver/)
 
