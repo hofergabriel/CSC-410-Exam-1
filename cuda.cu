@@ -18,9 +18,15 @@ void floyd(const int n){
   // allocate 2D array on Host
   int * A = (int *)malloc(Asize);
 
-	int tmp[n*n] = { 0, 2, 5, inf, inf, inf, inf, 0, 7, 1, inf, 8, inf, inf, 0, 4, inf, inf, inf, inf, inf, 0, 3, inf, inf, inf, 2, inf, 0, 3, inf, 5, inf, 2, 4, 0 };
+	int tmp[n*n] = { 
+		0, 2, 5, inf, inf, inf, 
+		inf, 0, 7, 1, inf, 8, 
+		inf, inf, 0, 4, inf, inf, 
+		inf, inf, inf, 0, 3, inf, 
+		inf, inf, 2, inf, 0, 3, 
+		inf, 5, inf, 2, 4, 0 };
 
-	memcpy(A,tmp,n*n);
+	memcpy(A,tmp,n*n*sizeof(int));
 
 	// print before
 	printA(A,n);
