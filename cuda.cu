@@ -3,7 +3,9 @@
 
 void printA(int * A, const int n);
 
-
+/*********************************************************************
+Parallel stuff, Floyd helper
+*********************************************************************/
 __global__ void aux(int * dA, const int n, const int k){
   int index = threadIdx.x + blockIdx.x * blockDim.x;
   if(index > n*n) return;
@@ -11,6 +13,9 @@ __global__ void aux(int * dA, const int n, const int k){
   dA[i*n+j] = dA[i*n+j] < (dA[i*n+k]+dA[k*n+j]) ? dA[i*n+j] : dA[i*n+k]+dA[k*n+j];
 }
 
+/*********************************************************************
+Floyd-Warshall Algorithm
+*********************************************************************/
 void floyd(const int n){
   // size of A in bytes
   int Asize = n*n*sizeof(int);
@@ -54,6 +59,9 @@ void floyd(const int n){
   cudaDeviceSynchronize();
 }
 
+/*********************************************************************
+Print Array
+*********************************************************************/
 void printA(int * A, const int n){
 	for(int i=0;i<n;i++){
 		for(int j=0;j<n;j++){
@@ -67,6 +75,37 @@ void printA(int * A, const int n){
 	cudaDeviceSynchronize();
 }
 
+/*********************************************************************
+Print Array
+*********************************************************************/
+void serial(const int n){
+	int Asize = n*n*sizeof(int);
+	int inf = 512;
+  // allocate 2D array on Host
+  int * A = (int *)malloc(Asize);
+
+	int tmp[n*n] = { 
+		0, 2, 5, inf, inf, inf, 
+		inf, 0, 7, 1, inf, 8, 
+		inf, inf, 0, 4, inf, inf, 
+		inf, inf, inf, 0, 3, inf, 
+		inf, inf, 2, inf, 0, 3, 
+		inf, 5, inf, 2, 4, 0 };
+
+	memcpy(A,tmp,n*n*sizeof(int));
+
+	// print before
+	printA(A,n);
+	for(int k=0;k<n;k++)
+		for(int i=0;i<n;i++)
+			for(int j=0;j<n;j++)
+				A[i*n+j] = A[i*n+j] < (A[i*n+k]+A[k*n+j]) ? A[i*n+j] : A[i*n+k]+A[k*n+j];
+	printA(A,n);
+}
+
+/*********************************************************************
+Main
+*********************************************************************/
 int main() {
   int n;
 	printf("size of array: ");
@@ -76,7 +115,8 @@ int main() {
 	printf("%d\n", n);
   cudaDeviceSynchronize();
 
-  floyd(n);
+  // floyd(n);
+	serial(n);
   return 0;
 }
 
