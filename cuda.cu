@@ -1,3 +1,9 @@
+/*********************************************************************
+Author: Gabriel Hofer
+Date: October 19, 2020
+Instructor: Dr. Karlsson
+Course: CSC-410 Parallel Computing
+*********************************************************************/
 #include <stdio.h>
 #define THREADS_PER_BLOCK 512
 
@@ -9,7 +15,9 @@ Parallel stuff, Floyd helper
 __global__ void aux(int * dA, const int n, const int k){
   int index = threadIdx.x + blockIdx.x * blockDim.x;
   if(index > n*n) return;
-  int i = index / n, j = index % n;
+	__syncthreads();
+  int i = index / n;
+	int j = index % n;
   dA[i*n+j] = dA[i*n+j] < (dA[i*n+k]+dA[k*n+j]) ? dA[i*n+j] : dA[i*n+k]+dA[k*n+j];
 }
 
@@ -38,14 +46,15 @@ void floyd(const int n){
 
   // allocate 2D array on Device
   int * dA=NULL;
-  cudaMalloc((void **)dA, Asize);
+  cudaMalloc((void **)&dA, Asize);
 
   // copy Array to Device
   cudaMemcpy(dA, A, Asize, cudaMemcpyHostToDevice);
 
   for(int k=0;k<n;k++){
     // call floyd's algorithm
-    aux<<<ceil(n*n/THREADS_PER_BLOCK),THREADS_PER_BLOCK>>>(dA,n,k);
+    aux<<<(n*n+THREADS_PER_BLOCK)/(THREADS_PER_BLOCK),THREADS_PER_BLOCK>>>(dA,n,k);
+		cudaDeviceSynchronize();
   }
 
   // copy Array back to Host
@@ -76,7 +85,7 @@ void printA(int * A, const int n){
 }
 
 /*********************************************************************
-Print Array
+Serial
 *********************************************************************/
 void serial(const int n){
 	int Asize = n*n*sizeof(int);
@@ -115,8 +124,8 @@ int main() {
 	printf("%d\n", n);
   cudaDeviceSynchronize();
 
-  // floyd(n);
-	serial(n);
+  floyd(n);
+	//serial(n);
   return 0;
 }
 
