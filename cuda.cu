@@ -52,12 +52,10 @@ void printA(int * A, const int n){
 Serial, used for checking correctness 
 *********************************************************************/
 void serial(int * A, const int n){
-	// printA(A,n);
   for(int k=0;k<n;k++)
     for(int i=0;i<n;i++)
       for(int j=0;j<n;j++)
 				A[i*n+j] = A[i*n+j] < (A[i*n+k]+A[k*n+j]) ? A[i*n+j] : A[i*n+k]+A[k*n+j];
-	// printA(A,n);
 }
 
 /*********************************************************************
@@ -82,6 +80,44 @@ int * makeMatrix(const int n){
 /*********************************************************************
 Main
 *********************************************************************/
+void correctness(const int low, const int high){
+	// int low = atoi(argv[2]);
+	// int high = atoi(argv[3]);
+	for(int n = pow(2,low); n <= pow(2,high); n*=2){
+		int * A = makeMatrix(n);
+		int * B = (int *)malloc(n*n*sizeof(int));
+  	int Asize = n*n*sizeof(int);
+		memcpy(B, A, Asize);
+		serial(B,n);
+		
+  	int * dA=NULL;
+  	cudaMalloc((void **)&dA, Asize);
+  	cudaMemcpy(dA, A, Asize, cudaMemcpyHostToDevice);
+  	floyd(dA,n);
+  	cudaMemcpy(A, dA, Asize, cudaMemcpyDeviceToHost);
+
+		bool foundDiff=false;
+		for(int i=0;i<n;i++)
+			for(int j=0;j<n;j++)
+				if(B[i*n+j]!=A[i*n+j])
+					foundDiff=true;
+
+  	cudaFree(dA);
+		free(A);
+		free(B);
+  	cudaDeviceSynchronize();
+		if(foundDiff){
+			printf("FOUND DIFFERENCE");
+			break;
+		}
+	}
+	printf("ALL SAME");
+}
+
+
+/*********************************************************************
+Main
+*********************************************************************/
 void range(const int low, const int high){
 	// int low = atoi(argv[2]);
 	// int high = atoi(argv[3]);
@@ -97,6 +133,7 @@ void range(const int low, const int high){
 		printf("Execution Time: %f\n", (float)(after-before)/CLOCKS_PER_SEC);
   	cudaMemcpy(A, dA, Asize, cudaMemcpyDeviceToHost);
   	cudaFree(dA);
+		free(A);
   	cudaDeviceSynchronize();
 	}
 }
@@ -110,7 +147,7 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 	if(strcmp(argv[1],"-c")==0){
-		
+		correctness(atoi(argv[2]),atoi(argv[3]));	
 	} else if(strcmp(argv[1],"-r")==0){
 		range(atoi(argv[2]),atoi(argv[3]));	
 	}
