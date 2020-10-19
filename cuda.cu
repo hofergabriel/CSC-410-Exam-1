@@ -7,12 +7,12 @@ Course: CSC-410 Parallel Computing
 #include <stdio.h>
 #include <time.h>
 #define THREADS_PER_BLOCK 512
-const int inf = 512;
+const int inf = 32768;
 
 void printA(int * A, const int n);
 
 /*********************************************************************
-Parallel stuff, Floyd helper
+Floyd helper (auxiliary)
 *********************************************************************/
 __global__ void aux(int * dA, const int n, const int k){
   int index = threadIdx.x + blockIdx.x * blockDim.x;
@@ -27,7 +27,6 @@ Floyd-Warshall Algorithm
 *********************************************************************/
 void floyd(int * dA, const int n){
 	for(int k=0;k<n;k++){
-		// call floyd's algorithm
 		aux<<<(n*n+THREADS_PER_BLOCK)/(THREADS_PER_BLOCK),THREADS_PER_BLOCK>>>(dA,n,k);
 		cudaDeviceSynchronize();
 	}
@@ -64,9 +63,7 @@ void serial(int * A, const int n){
 /*********************************************************************
 Usage Statement
 *********************************************************************/
-void Usage(){
-	printf("Usage: ./cuda -N n_integer\n");
-}
+void Usage(){ printf("Usage: ./cuda -N n_integer\n"); }
 
 /*********************************************************************
 Make Random Matrix 
@@ -74,12 +71,11 @@ Make Random Matrix
 int * makeMatrix(const int n){
 	int * A = (int *)malloc(n*n*sizeof(int));
 	srand(time(0));
-	for(int i=0;i<n;i++){
+	for(int i=0;i<n;i++)
 		for(int j=0;j<n;j++){
 			if(rand()&1) A[i*n+j]=(rand()%20)+1; // random number in range [1,20]
 			else A[i*n+j]=inf;
 		}
-	}
 	return A;
 }
 
@@ -101,7 +97,7 @@ int main(int argc, char *argv[]) {
   int Asize = n*n*sizeof(int);
 
 	// print before
-	printA(A,n);
+	// printA(A,n);
 
   // allocate 2D array on Device
   int * dA=NULL;
@@ -110,14 +106,19 @@ int main(int argc, char *argv[]) {
   // copy Array to Device
   cudaMemcpy(dA, A, Asize, cudaMemcpyHostToDevice);
 
+	clock_t before = clock();
+
 	// run the algorithm
   floyd(dA,n);
+
+	clock_t after = clock();
+	printf("Execution Time: %f\n", (float)(after-before)/CLOCKS_PER_SEC);
 
   // copy Array from Device to Host
   cudaMemcpy(A, dA, Asize, cudaMemcpyDeviceToHost);
 
 	// print result
-	printA(A,n);
+	// printA(A,n);
 
   // Cleanup
   cudaFree(dA);
