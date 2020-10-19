@@ -4,37 +4,68 @@ Date: October 19, 2020
 Instructor: Dr. Karlsson
 Course: CSC-410 Parallel Computing
 *********************************************************************/
-#include <stdlib.h>
-#include <math.h> 
 #include <stdio.h>
 #include <time.h>
-#include <string.h>
-#include <stdbool.h>
-#include <omp.h>
+#define THREADS_PER_BLOCK 512
 const int inf = 32768;
 
+void printA(int * A, const int n);
+
 /*********************************************************************
-Floyd's Algorithm, OpenMP
+Floyd helper (auxiliary)
 *********************************************************************/
-void floyd(int * A, const int n){
-  for(int k=0;k<n;k++)
-    #pragma omp parallel for
-    for(int i=0;i<n;i++)
-      #pragma omp parallel for
-      for(int j=0;j<n;j++)
-        A[i*n+j] = A[i*n+j] < (A[i*n+k]+A[k*n+j]) ? A[i*n+j] : A[i*n+k]+A[k*n+j];
+__global__ void aux(int * dA, const int n, const int k){
+  int index = threadIdx.x + blockIdx.x * blockDim.x;
+  if(index >= n*n) return;
+  __syncthreads();
+  int i = index / n, j = index % n;
+  dA[i*n+j] = dA[i*n+j] < (dA[i*n+k]+dA[k*n+j]) ? dA[i*n+j] : dA[i*n+k]+dA[k*n+j];
+  __syncthreads();
+}
+
+/*********************************************************************
+Floyd-Warshall Algorithm
+*********************************************************************/
+void floyd(int * dA, const int n){
+  for(int k=0;k<n;k++){
+    aux<<<(n*n+THREADS_PER_BLOCK)/(THREADS_PER_BLOCK),THREADS_PER_BLOCK>>>(dA,n,k);
+    cudaDeviceSynchronize();
+  }
+}
+
+/*********************************************************************
+Print Array
+*********************************************************************/
+void printA(int * A, const int n){
+  for(int i=0;i<n;i++){
+    for(int j=0;j<n;j++){
+      printf("%d\t",A[i*n+j]);
+      cudaDeviceSynchronize();
+    }
+    printf("\n");
+    cudaDeviceSynchronize();
+  }
+  printf("\n");
+  cudaDeviceSynchronize();
 }
 
 /*********************************************************************
 Serial, used for checking correctness 
 *********************************************************************/
 void serial(int * A, const int n){
-  // printA(A,n);
   for(int k=0;k<n;k++)
     for(int i=0;i<n;i++)
       for(int j=0;j<n;j++)
         A[i*n+j] = A[i*n+j] < (A[i*n+k]+A[k*n+j]) ? A[i*n+j] : A[i*n+k]+A[k*n+j];
-  // printA(A,n);
+}
+
+/*********************************************************************
+Usage Statement
+*********************************************************************/
+void Usage(){ 
+  printf("Usage: ./cuda [-r low_power high_power] [-c low_power high_power]\n"); 
+  printf("\t-r: runs Floyd's algorithm in parallel on range of powers of two\n");
+  printf("\t-c: runs correctness tests on range of powers of two\n");
 }
 
 /*********************************************************************
@@ -52,12 +83,6 @@ int * makeMatrix(const int n){
 }
 
 /*********************************************************************
-Usage Statement
-*********************************************************************/
-void Usage(){ printf("Usage: ./cuda -N n_integer\n"); }
-
-///////////////////////////////////////////////////////////////////////////
-/*********************************************************************
 Main
 *********************************************************************/
 void correctness(const int low, const int high){
@@ -67,18 +92,26 @@ void correctness(const int low, const int high){
     int Asize = n*n*sizeof(int);
     memcpy(B, A, Asize);
     serial(B,n);
-    floyd(A,n);
+    
+    int * dA=NULL;
+    cudaMalloc((void **)&dA, Asize);
+    cudaMemcpy(dA, A, Asize, cudaMemcpyHostToDevice);
+    floyd(dA,n);
+    cudaMemcpy(A, dA, Asize, cudaMemcpyDeviceToHost);
 
     bool foundDiff=false;
     for(int i=0;i<n;i++)
       for(int j=0;j<n;j++)
-        if(B[i*n+j]!=A[i*n+j])
+        if(B[i*n+j]!=A[i*n+j]){
           foundDiff=true;
-
+          return;
+        }
+    cudaFree(dA);
     free(A);
     free(B);
+    cudaDeviceSynchronize();
     if(foundDiff){
-      printf("FOUND DIFFERENCE:(\n");
+      printf("FOUND DIFFERENCE:(\n\n");
       return;
     }
     printf("SAME\n");
@@ -92,11 +125,18 @@ Main
 void range(const int low, const int high){
   for(int n = pow(2,low); n <= pow(2,high); n*=2){
     int * A = makeMatrix(n);
-    double start = omp_get_wtime();
-    floyd(A,n);
-    double end = omp_get_wtime();
-    printf("%d, %f\n", n, end-start);
+    int Asize = n*n*sizeof(int);
+    int * dA=NULL;
+    cudaMalloc((void **)&dA, Asize);
+    cudaMemcpy(dA, A, Asize, cudaMemcpyHostToDevice);
+    clock_t before = clock();
+    floyd(dA,n);
+    clock_t after = clock();
+    printf("%d, %f\n", n, (float)(after-before)/CLOCKS_PER_SEC);
+    cudaMemcpy(A, dA, Asize, cudaMemcpyDeviceToHost);
+    cudaFree(dA);
     free(A);
+    cudaDeviceSynchronize();
   }
 }
 

@@ -1,0 +1,222 @@
+
+\documentclass[12pt]{article}
+\usepackage{listings}
+\usepackage{pdfpages}
+\usepackage{amsmath}
+\usepackage[legalpaper, margin=1in]{geometry}
+\begin{document}
+\begin{titlepage}
+   \begin{center}
+       \vspace*{1cm}
+       \Large
+       Exam 1
+       \normalsize
+
+       \vspace{0.5cm}
+
+       Author: Gabriel Hofer
+
+       \vspace{0.5cm}
+
+       Course: CSC-410 Parallel Computing
+
+       \vspace{0.5cm}
+
+       Instructor: Dr. Karlsson
+       \vspace{0.5cm}
+
+       Due: October 19, 2020
+
+       \vfill
+
+       Computer Science and Engineering\
+
+       South Dakota School of Mines and Technology\
+   \end{center}
+\end{titlepage}
+%------------------------------------------------------------------------------------
+\newpage
+\subsection*{How to Make the Project}
+\begin{lstlisting}[frame=single,language=Bash,caption=make \label{code:make}]
+7356111@linux09 CSC-410-Exam-1 >>make
+gcc openmp.c -fopenmp -lm -o openmp
+nvcc cuda.cu -o cuda
+pdflatex exam1.tex
+...
+\end{lstlisting}
+\subsection*{Functions and Program Structure}
+\textbf{main} calls either usage or range or correctness depending on the 
+command line arguments. 
+
+\textbf{Usage} prints a Message to standard output about how to start the program
+
+\textbf{makeMatrix} makes a random matrix. the probability of that there is an edge 
+for any two vertices is equal to $0.25$. We use the rand() C language
+function to ``generate'' random integers. we also set the seed value 
+before any rand() calls.
+
+\textbf{serial} is our implementation of Floyd's algorithm without any parallelization.
+We use it to check the correctness of our parallelized functions.
+
+\textbf{Correctness}
+The purpose of this function is to test whether our parallelized code 
+is correct. We make the assumption that the function called serial (previously mentioned) 
+is a correct implementation of Floyd's algorithm. So, we compare the 
+output of our parallelized function to the output of serial. 
+
+\textbf{Range} runs Floyd's algorithm in parallel for a range of values
+of n. we iterate from small power of 2 to a greater power of 2. 
+
+\textbf{printA} simply prints the 2D array, with a tab separating each column.
+
+%--------------------------------------------------------------------
+\newpage
+\subsubsection*{Floyd CUDA}
+\begin{lstlisting}[frame=single,language=C,caption=Floyd CUDA \label{code:make}]
+__global__ void aux(int * dA, const int n, const int k){
+  int index = threadIdx.x + blockIdx.x * blockDim.x;
+  if(index >= n*n) return;
+  __syncthreads();
+  int i = index / n, j = index % n;
+  dA[i*n+j] = dA[i*n+j] < (dA[i*n+k]+dA[k*n+j]) ? 
+    dA[i*n+j] : dA[i*n+k]+dA[k*n+j];
+  __syncthreads();
+}
+
+void floyd(int * dA, const int n){
+  for(int k=0;k<n;k++){
+    aux<<<(n*n+THREADS_PER_BLOCK)/(THREADS_PER_BLOCK),
+      THREADS_PER_BLOCK>>>(dA,n,k);
+    cudaDeviceSynchronize();
+  }
+}
+\end{lstlisting}
+\subsubsection*{Floyd OpenMP}
+\begin{lstlisting}[frame=single,language=C,caption=Floyd OpenMP \label{code:make}]
+void floyd(int * A, const int n){
+  for(int k=0;k<n;k++)
+    #pragma omp parallel for
+    for(int i=0;i<n;i++)
+      #pragma omp parallel for
+      for(int j=0;j<n;j++)
+        A[i*n+j] = A[i*n+j] < (A[i*n+k]+A[k*n+j]) ? 
+          A[i*n+j] : A[i*n+k]+A[k*n+j];
+}
+\end{lstlisting}
+In the OpenMP version of Floyd's algorithm, we insert two pragmas for the second and
+third nested for loops.
+
+%--------------------------------------------------------------------
+\newpage
+\subsection*{Testing and Verification}
+\begin{lstlisting}[frame=single,language=C,caption=CUDA Correctness Testing \label{code:make}]
+void correctness(const int low, const int high){
+  for(int n = pow(2,low); n <= pow(2,high); n*=2){
+    int * A = makeMatrix(n);
+    int * B = (int *)malloc(n*n*sizeof(int));
+    int Asize = n*n*sizeof(int);
+    memcpy(B, A, Asize);
+    serial(B,n);
+    
+    int * dA=NULL;
+    cudaMalloc((void **)&dA, Asize);
+    cudaMemcpy(dA, A, Asize, cudaMemcpyHostToDevice);
+    floyd(dA,n);
+    cudaMemcpy(A, dA, Asize, cudaMemcpyDeviceToHost);
+
+    bool foundDiff=false;
+    for(int i=0;i<n;i++)
+      for(int j=0;j<n;j++)
+        if(B[i*n+j]!=A[i*n+j]){
+          foundDiff=true;
+          return;
+        }
+    cudaFree(dA);
+    free(A);
+    free(B);
+    cudaDeviceSynchronize();
+    if(foundDiff){
+      printf("FOUND DIFFERENCE:(\n\n");
+      return;
+    }
+    printf("SAME\n");
+  }
+  printf("ALL SAME:)\n\n");
+}
+\end{lstlisting}
+The correctness testing functions for CUDA and OpenMP are similar. 
+
+%--------------------------------------------------------------------
+\newpage
+\subsection*{Usage Examples}
+\begin{lstlisting}[frame=single,language=Bash,caption=CUDA Range Option \label{code:make}]
+7356111@linux09 CSC-410-Exam-1 >>./cuda -r 1 12
+2, 0.000023
+4, 0.000031
+8, 0.000059
+16, 0.000113
+32, 0.000224
+64, 0.000483
+128, 0.001060
+256, 0.003196
+512, 0.014511
+1024, 0.113596
+2048, 0.846598
+4096, 6.665819
+\end{lstlisting}
+\begin{lstlisting}[frame=single,language=Bash,caption=OpenMP Range Option \label{code:make}]
+7356111@linux09 CSC-410-Exam-1 >>./openmp -r 1 12
+2, 0.000549
+4, 0.000271
+8, 0.000282
+16, 0.000430
+32, 0.001399
+64, 0.001146
+128, 0.008198
+256, 0.033451
+512, 0.168379
+1024, 1.088660
+2048, 7.835085
+4096, 60.018689
+\end{lstlisting}
+The two listings above outputted 12 records with 2 fields in each record. The first field in each record is n and the second field in each record is the time it took to run Floyd's algorithm with an n by n matrix.
+
+
+
+
+\subsection*{Charts and Analysis}
+\begin{center}
+  \begin{tabular}{ |c|c|c| } 
+    \hline
+    n & seconds
+    \hline
+    2 &  0.000023
+    4 & 0.000031
+    8 & 0.000059
+    16 & 0.000113
+    32 & 0.000224
+    64 & 0.000483
+    128 & 0.001060
+    256 & 0.003196
+    512 & 0.014511
+    1024 & 0.113596
+    2048 & 0.846598
+    4096 & 6.665819
+    \hline
+  \end{tabular}
+\end{center}
+
+
+
+
+
+\subsection*{Deliverables}
+\begin{enumerate}
+	\item Makefile
+	\item cuda.cu
+	\item openmp.c
+	\item exam1.pdf
+\end{enumerate}
+
+\end{document}
+

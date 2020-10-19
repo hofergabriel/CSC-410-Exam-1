@@ -37,136 +37,45 @@
 %------------------------------------------------------------------------------------
 \newpage
 \subsection*{How to Make the Project}
-\begin{verbatim}
+\begin{lstlisting}[frame=single,language=Bash,caption=make \label{code:make}]
 7356111@linux09 CSC-410-Exam-1 >>make
 gcc openmp.c -fopenmp -lm -o openmp
 nvcc cuda.cu -o cuda
 pdflatex exam1.tex
 ...
-\end{verbatim}
-\subsection*{Usage Statement}
-\begin{verbatim}
-Usage: ./cuda [-r low_power high_power] [-c low_power high_power]
-	-r: runs Floyd's algorithm in parallel on range of powers of two
-	-c: runs correctness tests on range of powers of two
-\end{verbatim}
-\subsection*{Usage Examples (Performance Tests for a Range of n)}
-\begin{verbatim}
-  7356111@linux09 CSC-410-Exam-1 >>./cuda -r 1 12
-  2, 0.000023
-  4, 0.000031
-  8, 0.000059
-  16, 0.000113
-  32, 0.000224
-  64, 0.000483
-  128, 0.001060
-  256, 0.003196
-  512, 0.014511
-  1024, 0.113596
-  2048, 0.846598
-  4096, 6.665819
-\end{verbatim}
-\begin{verbatim}
-  7356111@linux09 CSC-410-Exam-1 >>./openmp -r 1 12
-  2, 0.000549
-  4, 0.000271
-  8, 0.000282
-  16, 0.000430
-  32, 0.001399
-  64, 0.001146
-  128, 0.008198
-  256, 0.033451
-  512, 0.168379
-  1024, 1.088660
-  2048, 7.835085
-  4096, 60.018689
-\end{verbatim}
-\subsection*{Data in a Table as Requested}
-\begin{center}
-  \begin{tabular}{ |c|c|c| } 
-    \hline
-    n & CUDA (sec) & OpenMP (sec) \\
-    \hline
-    2 &  0.000023 & 0.000549 \\
-    4 & 0.000031 & 0.000271 \\
-    8 & 0.000059 & 0.000282 \\
-    16 & 0.000113 & 0.000430 \\
-    32 & 0.000224 & 0.001399 \\
-    64 & 0.000483 & 0.001146 \\
-    128 & 0.001060 & 0.008198 \\
-    256 & 0.003196 & 0.033451 \\
-    512 & 0.014511 & 0.168379 \\
-    1024 & 0.113596 & 1.088660 \\
-    2048 & 0.846598 & 7.835085 \\
-    4096 & 6.665819 & 60.018689 \\
-    \hline
-  \end{tabular}
-\end{center}
-\newpage
-\subsection*{Usage Examples (Correctness Tests)}
-\begin{verbatim}
-  7356111@linux09 CSC-410-Exam-1 >>./cuda -c 1 10
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  ALL SAME:)
-\end{verbatim}
-\begin{verbatim}
-  7356111@linux09 CSC-410-Exam-1 >>./openmp -c 1 10
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  ALL SAME:)
-\end{verbatim}
-The two listings above show how to run the correctness tests from the command line. Each line that prints "SAME" is a successful test. Each test is run on a different value of n.
-\[
-  n = 2^p 
-\]
-Where $p$ is a number between 1 and 10 in this case.
-
-\subsection*{Contents of exam1.tgz}
-\begin{enumerate}
-	\item Makefile
-	\item cuda.cu
-	\item openmp.c
-	\item exam1.pdf
-\end{enumerate}
-
-%------------------------------------------------------------------------------
-\newpage
+\end{lstlisting}
 \subsection*{Functions and Program Structure}
-\begin{itemize}
-  \item \textbf{main} calls either usage or range or correctness depending on the 
+\subsection*{Main}
+\textbf{main} calls either usage or range or correctness depending on the 
 command line arguments. 
-  \item \textbf{Usage} prints a Message to standard output about how to run the program.
-  \item \textbf{makeMatrix} makes a random matrix. the probability of that there is an edge 
+
+\subsection*{Usage}
+\textbf{Usage} prints a Message to standard output about how to start the program
+
+\subsection*{makeMatrix}
+\textbf{makeMatrix} makes a random matrix. the probability of that there is an edge 
 for any two vertices is equal to $0.25$. We use the rand() C language
 function to ``generate'' random integers. we also set the seed value 
 before any rand() calls.
-  \item \textbf{serial} is our implementation of Floyd's algorithm without any parallelization.
+
+\subsection*{serial}
+\textbf{serial} is our implementation of Floyd's algorithm without any parallelization.
 We use it to check the correctness of our parallelized functions.
-  \item \textbf{Correctness} tests whether our parallelized code 
-is correct. We make the assumption that the function called serial 
+
+\subsection*{Correctness}
+\textbf{Correctness}
+The purpose of this function is to test whether our parallelized code 
+is correct. We make the assumption that the function called serial (previously mentioned) 
 is a correct implementation of Floyd's algorithm. So, we compare the 
 output of our parallelized function to the output of serial. 
-  \item \textbf{Range} runs Floyd's algorithm in parallel for a range of values
+
+\subsection*{Range}
+\textbf{Range} runs Floyd's algorithm in parallel for a range of values
 of n. we iterate from small power of 2 to a greater power of 2. 
-  \item \textbf{printA} simply prints the 2D array, with a tab separating each column.
-\end{itemize}
+
+\subsection*{printA}
+\textbf{printA} simply prints the 2D array, with a tab separating each column.
+
 %--------------------------------------------------------------------
 \newpage
 \subsubsection*{CUDA Floyd}
@@ -189,7 +98,8 @@ void floyd(int * dA, const int n){
   }
 }
 \end{lstlisting}
-In CUDA, we use indexing to get rid of the two inner for loops in Floyd's algorithm.
+While I was debugging, I put __syncthreads() in my program and it seemed to make
+it work better. So, I decided to keep it there. I'm curious to know what it does. 
 
 \subsubsection*{OpenMP Floyd}
 \begin{lstlisting}[frame=single,language=C,caption=OpenMP Floyd \label{code:make}]
@@ -255,8 +165,116 @@ void correctness(const int low, const int high){
   printf("ALL SAME:)\n\n");
 }
 \end{lstlisting}
-correctness shows how we 
+The correctness testing functions for CUDA and OpenMP are similar. 
 
+%--------------------------------------------------------------------
+\newpage
+\subsection*{Usage Examples (Performance Tests for a Range of n)}
+\begin{lstlisting}[frame=single,language=Bash,caption=CUDA Range Option \label{code:make}]
+7356111@linux09 CSC-410-Exam-1 >>./cuda -r 1 12
+2, 0.000023
+4, 0.000031
+8, 0.000059
+16, 0.000113
+32, 0.000224
+64, 0.000483
+128, 0.001060
+256, 0.003196
+512, 0.014511
+1024, 0.113596
+2048, 0.846598
+4096, 6.665819
+\end{lstlisting}
+\begin{lstlisting}[frame=single,language=Bash,caption=OpenMP Range Option \label{code:make}]
+7356111@linux09 CSC-410-Exam-1 >>./openmp -r 1 12
+2, 0.000549
+4, 0.000271
+8, 0.000282
+16, 0.000430
+32, 0.001399
+64, 0.001146
+128, 0.008198
+256, 0.033451
+512, 0.168379
+1024, 1.088660
+2048, 7.835085
+4096, 60.018689
+\end{lstlisting}
+The two listings above outputted 12 records with 2 fields in each record. The first field in each record is n and the second field in each record is the time it took to run Floyd's algorithm with an n by n matrix.
+
+\subsection*{Data in a Table as Requested}
+\begin{center}
+  \begin{tabular}{ |c|c|c| } 
+    \hline
+    n & CUDA (sec) & OpenMP (sec) \\
+    \hline
+    2 &  0.000023 & 0.000549 \\
+    4 & 0.000031 & 0.000271 \\
+    8 & 0.000059 & 0.000282 \\
+    16 & 0.000113 & 0.000430 \\
+    32 & 0.000224 & 0.001399 \\
+    64 & 0.000483 & 0.001146 \\
+    128 & 0.001060 & 0.008198 \\
+    256 & 0.003196 & 0.033451 \\
+    512 & 0.014511 & 0.168379 \\
+    1024 & 0.113596 & 1.088660 \\
+    2048 & 0.846598 & 7.835085 \\
+    4096 & 6.665819 & 60.018689 \\
+    \hline
+  \end{tabular}
+\end{center}
+
+%--------------------------------------------------------------------
+\newpage
+\subsection*{Usage Examples (Correctness)}
+\begin{lstlisting}[frame=single,language=Bash,caption=CUDA Correctness Option \label{code:make}]
+7356111@linux09 CSC-410-Exam-1 >>./cuda -c 1 10
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+ALL SAME:)
+\end{lstlisting}
+
+\begin{lstlisting}[frame=single,language=Bash,caption=CUDA Correctness Option \label{code:make}]
+7356111@linux09 CSC-410-Exam-1 >>./openmp -c 1 10
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+ALL SAME:)
+\end{lstlisting}
+The two listings above show how to run the correctness tests from the command line. Each line that prints "SAME" is a successful test. Each test is run on a different value of n.
+\[
+  n = i^p 
+\]
+Where $p$ is a number between 1 and 10 in this case.
+
+
+
+
+
+%--------------------------------------------------------------------
+\newpage
+\subsection*{Deliverables}
+\begin{enumerate}
+	\item Makefile
+	\item cuda.cu
+	\item openmp.c
+	\item exam1.pdf
+\end{enumerate}
 
 \end{document}
 
