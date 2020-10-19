@@ -63,7 +63,7 @@ void serial(int * A, const int n){
 /*********************************************************************
 Usage Statement
 *********************************************************************/
-void Usage(){ printf("Usage: ./cuda -N n_integer\n"); }
+void Usage(){ printf("Usage: ./cuda [-r low_power high_power] [-c low_power high_power]\n"); }
 
 /*********************************************************************
 Make Random Matrix 
@@ -82,49 +82,38 @@ int * makeMatrix(const int n){
 /*********************************************************************
 Main
 *********************************************************************/
+void range(const int low, const int high){
+	// int low = atoi(argv[2]);
+	// int high = atoi(argv[3]);
+	for(int n = pow(2,low); n <= pow(2,high); n*=2){
+		int * A = makeMatrix(n);
+  	int Asize = n*n*sizeof(int);
+  	int * dA=NULL;
+  	cudaMalloc((void **)&dA, Asize);
+  	cudaMemcpy(dA, A, Asize, cudaMemcpyHostToDevice);
+		clock_t before = clock();
+  	floyd(dA,n);
+		clock_t after = clock();
+		printf("Execution Time: %f\n", (float)(after-before)/CLOCKS_PER_SEC);
+  	cudaMemcpy(A, dA, Asize, cudaMemcpyDeviceToHost);
+  	cudaFree(dA);
+  	cudaDeviceSynchronize();
+	}
+}
+
+/*********************************************************************
+Main
+*********************************************************************/
 int main(int argc, char *argv[]) {
 	if(argc==1) {
 		Usage();
 		return 0;
 	}
-	// convert argument to integer
-  int n = atoi(argv[2]);
-
-	// allocate memory for graph
-	int * A = makeMatrix(n);
- 
-	// size of A in bytes
-  int Asize = n*n*sizeof(int);
-
-	// print before
-	// printA(A,n);
-
-  // allocate 2D array on Device
-  int * dA=NULL;
-  cudaMalloc((void **)&dA, Asize);
-
-  // copy Array to Device
-  cudaMemcpy(dA, A, Asize, cudaMemcpyHostToDevice);
-
-	clock_t before = clock();
-
-	// run the algorithm
-  floyd(dA,n);
-	// serial(A, n);
-
-	clock_t after = clock();
-	printf("Execution Time: %f\n", (float)(after-before)/CLOCKS_PER_SEC);
-
-  // copy Array from Device to Host
-  cudaMemcpy(A, dA, Asize, cudaMemcpyDeviceToHost);
-
-	// print result
-	// printA(A,n);
-
-  // Cleanup
-  cudaFree(dA);
-  cudaDeviceSynchronize();
-	
+	if(strcmp(argv[1],"-c")==0){
+		
+	} else if(strcmp(argv[1],"-r")==0){
+		range(atoi(argv[2]),atoi(argv[3]));	
+	}
   return 0;
 }
 

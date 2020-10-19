@@ -1,5 +1,5 @@
 default:
-	pdflatex exam1.tex
+	nvcc cuda.cu -o cuda
 
 cuda:
 	nvcc cuda.cu -o cuda
