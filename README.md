@@ -23,4 +23,36 @@
 [installing nvidia drivers](https://www.cyberciti.biz/faq/ubuntu-linux-install-nvidia-driver-latest-proprietary-driver/)
 
 
+## THEORY 
+[slides theory](https://www3.nd.edu/~zxu2/acms60212-40212/Lec-07.pdf)
+
+[serial fraction](https://en.wikipedia.org/wiki/Karp%E2%80%93Flatt_metric)
+
+
+```C
+
+
+
+void floyd(int n){
+  for(int i=0;i<n;i++){
+    ...
+    floydAUX();
+    ...
+  }
+}
+
+
+
+int main(){
+  floyd()
+}
+
+
+```
+
+
+
+
+
+
 
