@@ -18,37 +18,37 @@ Floyd's Algorithm, OpenMP
 *********************************************************************/
 void floyd(int * A, const int n){
   for(int k=0;k<n;k++)
-		#pragma omp parallel for
+    #pragma omp parallel for
     for(int i=0;i<n;i++)
-			#pragma omp parallel for
+      #pragma omp parallel for
       for(int j=0;j<n;j++)
-				A[i*n+j] = A[i*n+j] < (A[i*n+k]+A[k*n+j]) ? A[i*n+j] : A[i*n+k]+A[k*n+j];
+        A[i*n+j] = A[i*n+j] < (A[i*n+k]+A[k*n+j]) ? A[i*n+j] : A[i*n+k]+A[k*n+j];
 }
 
 /*********************************************************************
 Serial, used for checking correctness 
 *********************************************************************/
 void serial(int * A, const int n){
-	// printA(A,n);
+  // printA(A,n);
   for(int k=0;k<n;k++)
     for(int i=0;i<n;i++)
       for(int j=0;j<n;j++)
-				A[i*n+j] = A[i*n+j] < (A[i*n+k]+A[k*n+j]) ? A[i*n+j] : A[i*n+k]+A[k*n+j];
-	// printA(A,n);
+        A[i*n+j] = A[i*n+j] < (A[i*n+k]+A[k*n+j]) ? A[i*n+j] : A[i*n+k]+A[k*n+j];
+  // printA(A,n);
 }
 
 /*********************************************************************
 Make Random Matrix 
 *********************************************************************/
 int * makeMatrix(const int n){
-	int * A = (int *)malloc(n*n*sizeof(int));
-	srand(time(0));
-	for(int i=0;i<n;i++)
-		for(int j=0;j<n;j++){
-			if(rand()&1) A[i*n+j]=(rand()%20)+1; // random number in range [1,20]
-			else A[i*n+j]=inf;
-		}
-	return A;
+  int * A = (int *)malloc(n*n*sizeof(int));
+  srand(time(0));
+  for(int i=0;i<n;i++)
+    for(int j=0;j<n;j++){
+      if(rand()%4==0) A[i*n+j]=(rand()%20)+1; // random number in range [1,20]
+      else A[i*n+j]=inf;
+    }
+  return A;
 }
 
 /*********************************************************************
@@ -93,8 +93,8 @@ void range(const int low, const int high){
     int * A = makeMatrix(n);
     double start = omp_get_wtime();
     floyd(A,n);
-	  double end = omp_get_wtime();
-	  printf("%d, %f\n", n, end-start);
+    double end = omp_get_wtime();
+    printf("%d, %f\n", n, end-start);
     free(A);
   }
 }

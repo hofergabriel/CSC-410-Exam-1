@@ -76,7 +76,7 @@ int * makeMatrix(const int n){
   srand(time(0));
   for(int i=0;i<n;i++)
     for(int j=0;j<n;j++){
-      if(rand()&1) A[i*n+j]=(rand()%20)+1; // random number in range [1,20]
+      if(rand()%4==0) A[i*n+j]=(rand()%20)+1; // random number in range [1,20]
       else A[i*n+j]=inf;
     }
   return A;

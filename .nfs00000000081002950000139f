@@ -1,0 +1,117 @@
+
+\documentclass[12pt]{article}
+\usepackage{listings}
+\usepackage{pdfpages}
+\usepackage{amsmath}
+%\usepackage[legalpaper, margin=1in]{geometry}
+\begin{document}
+\begin{titlepage}
+   \begin{center}
+       \vspace*{1cm}
+       \Large
+       Exam 1
+       \normalsize
+
+       \vspace{0.5cm}
+
+       Author: Gabriel Hofer
+
+       \vspace{0.5cm}
+
+       Course: CSC-410 Parallel Computing
+
+       \vspace{0.5cm}
+
+       Instructor: Dr. Karlsson
+       \vspace{0.5cm}
+
+       Due: October 19, 2020
+
+       \vfill
+
+       Computer Science and Engineering\
+
+       South Dakota School of Mines and Technology\
+   \end{center}
+\end{titlepage}
+%------------------------------------------------------------------------------------
+\newpage
+\subsection*{How to Make the Project}
+\begin{lstlisting}[frame=single,language=Bash,caption=make \label{code:make}]
+7356111@linux09 CSC-410-Exam-1 >>make
+gcc openmp.c -fopenmp -lm -o openmp
+nvcc cuda.cu -o cuda
+pdflatex exam1.tex
+...
+\end{lstlisting}
+\subsection*{Functions and Program Structure}
+\textbf{main} calls either usage or range or correctness depending on the 
+command line arguments. 
+
+\textbf{Usage} prints a Message to standard output about how to start the program
+
+\textbf{makeMatrix} makes a random matrix. the probability of that there is an edge 
+for any two vertices is equal to $0.25$. We use the rand() C language
+function to ``generate'' random integers. we also set the seed value 
+before any rand() calls.
+
+\textbf{serial} is our implementation of Floyd's algorithm without any parallelization.
+We use it to check the correctness of our parallelized functions.
+
+\textbf{Correctness}
+The purpose of this function is to test whether our parallelized code 
+is correct. We make the assumption that the function called serial (previously mentioned) 
+is a correct implementation of Floyd's algorithm. So, we compare the 
+output of our parallelized function to the output of serial. 
+
+\textbf{Range} runs Floyd's algorithm in parallel for a range of values
+of n. we iterate from small power of 2 to a greater power of 2. 
+
+\textbf{printA} simply prints the 2D array, with a tab separating each column.
+
+\subsubsection*{CUDA}
+\begin{lstlisting}[frame=single,language=C,caption=Floyd, CUDA, OpenMP]
+__global__ void aux(int * dA, const int n, const int k){
+  int index = threadIdx.x + blockIdx.x * blockDim.x;
+  if(index >= n*n) return;
+  __syncthreads();
+  int i = index / n, j = index % n;
+  dA[i*n+j] = dA[i*n+j] < (dA[i*n+k]+dA[k*n+j]) ? dA[i*n+j] : dA[i*n+k]+dA[k*n+j];
+  __syncthreads();
+}
+
+void floyd(int * dA, const int n){
+  for(int k=0;k<n;k++){
+    aux<<<(n*n+THREADS_PER_BLOCK)/(THREADS_PER_BLOCK),THREADS_PER_BLOCK>>>(dA,n,k);
+    cudaDeviceSynchronize();
+  }
+}
+\subsubsection*{OpenMP}
+
+\begin{lstlisting}[frame=single,language=C,caption=Floyd, OpenMP]
+void floyd(int * A, const int n){
+  for(int k=0;k<n;k++)
+    #pragma omp parallel for
+    for(int i=0;i<n;i++)
+      #pragma omp parallel for
+      for(int j=0;j<n;j++)
+        A[i*n+j] = A[i*n+j] < (A[i*n+k]+A[k*n+j]) ? A[i*n+j] : A[i*n+k]+A[k*n+j];
+}
+\end{lstlisting}
+
+
+
+\subsection*{Testing and Verification}
+
+\subsection*{Charts and Analysis}
+
+\subsection*{Deliverables}
+\begin{enumerate}
+	\item Makefile
+	\item cuda.cu
+	\item openmp.c
+	\item exam1.pdf
+\end{enumerate}
+
+\end{document}
+
