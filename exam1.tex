@@ -30,6 +30,7 @@
        \vfill
 
        Computer Science and Engineering\
+
        South Dakota School of Mines and Technology\
    \end{center}
 \end{titlepage}
@@ -37,9 +38,6 @@
 \newpage
 
 \subsection*{Floyd's algorithm:}
-
-
-
 \begin{lstlisting}[frame=single,language=Python, caption=Floyd's Algorithm]
 for k in range(0,n):
   for i in range(0,n):
@@ -47,12 +45,24 @@ for k in range(0,n):
       A[i,j] = min(A[i,j], A[i,k] + A[k,j])
 \end{lstlisting}
 
-\subsection*{Testing for Correctness}
+\subsection*{Algorithms and Libraries}
 
-insert correctness testing code. 
+\subsection*{Functions and Program Structure}
 
+\subsubsection*{CUDA}
+\subsubsection*{OpenMP}
 
+\subsection*{Testing and Verification}
 
+\subsection*{Charts and Analysis}
+
+\subsection*{Deliverables}
+\begin{enumerate}
+	\item Makefile
+	\item cuda.cu
+	\item openmp.c
+	\item exam1.pdf
+\end{enumerate}
 
 \end{document}
 

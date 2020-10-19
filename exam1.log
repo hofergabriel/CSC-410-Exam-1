@@ -1,11 +1,11 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.11.26)  16 OCT 2020 22:39
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.8.31)  19 OCT 2020 01:44
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**doc.tex
-(./doc.tex
+**exam1.tex
+(./exam1.tex
 LaTeX2e <2017-04-15>
-Babel <3.18> and hyphenation patterns for 3 language(s) loaded.
+Babel <3.18> and hyphenation patterns for 7 language(s) loaded.
 (/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
 (/usr/share/texlive/texmf-dist/tex/latex/base/size12.clo
@@ -193,8 +193,8 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 713.
 \mathdisplay@stack=\toks22
 LaTeX Info: Redefining \[ on input line 2817.
 LaTeX Info: Redefining \] on input line 2818.
-) (./doc.aux)
-\openout1 = `doc.aux'.
+) (./exam1.aux)
+\openout1 = `exam1.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 7.
 LaTeX Font Info:    ... okay on input line 7.
@@ -285,19 +285,20 @@ Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
 (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2015/06/04 1.6 listings language file
-) [1] (./doc.aux) ) 
+) [1]
+(./exam1.aux) ) 
 Here is how much of TeX's memory you used:
- 4706 strings out of 494923
- 65719 string characters out of 6180741
- 152782 words of memory out of 5000000
- 7970 multiletter control sequences out of 15000+600000
+ 4706 strings out of 494847
+ 65737 string characters out of 6179080
+ 154027 words of memory out of 5000000
+ 7979 multiletter control sequences out of 15000+600000
  5149 words of font info for 19 fonts, out of 8000000 for 9000
- 14 hyphenation exceptions out of 8191
- 41i,6n,42p,270b,1104s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/c
-m/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr1
-2.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb>
-Output written on doc.pdf (2 pages, 37949 bytes).
+ 59 hyphenation exceptions out of 8191
+ 41i,6n,42p,272b,1104s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+bx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pf
+b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb>
+Output written on exam1.pdf (2 pages, 41132 bytes).
 PDF statistics:
  23 PDF objects out of 1000 (max. 8388607)
  15 compressed objects within 1 object stream

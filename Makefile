@@ -1,5 +1,5 @@
 default:
-	gcc openmp.c -fopenmp -lm -o openmp
+	pdflatex exam1.tex
 
 cuda:
 	nvcc cuda.cu -o cuda
@@ -7,5 +7,7 @@ cuda:
 openmp:
 	gcc openmp.c -fopenmp -lm -o openmp
 
+exam:
+	pdflatex exam1.tex
 
 
