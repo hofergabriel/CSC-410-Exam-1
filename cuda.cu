@@ -104,26 +104,19 @@ void correctness(const int low, const int high){
       for(int j=0;j<n;j++)
         if(B[i*n+j]!=A[i*n+j]){
           foundDiff=true;
-          printf("A[idx]: %d\n",A[i*n+j]);
-          printf("B[idx]: %d\n",B[i*n+j]);
-          printf("n: %d\n",n);
           return;
         }
-
-
-    printA(A,n);
-    printA(B,n);
-
     cudaFree(dA);
     free(A);
     free(B);
     cudaDeviceSynchronize();
     if(foundDiff){
-      printf("FOUND DIFFERENCE");
+      printf("FOUND DIFFERENCE:(\n\n");
       return;
     }
+    printf("SAME\n");
   }
-  printf("ALL SAME");
+  printf("ALL SAME:)\n\n");
 }
 
 /*********************************************************************
