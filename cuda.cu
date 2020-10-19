@@ -17,7 +17,7 @@ Floyd helper (auxiliary)
 __global__ void aux(int * dA, const int n, const int k){
   int index = threadIdx.x + blockIdx.x * blockDim.x;
   if(index > n*n) return;
-	__syncthreads();
+  __syncthreads();
   int i = index / n, j = index % n;
   dA[i*n+j] = dA[i*n+j] < (dA[i*n+k]+dA[k*n+j]) ? dA[i*n+j] : dA[i*n+k]+dA[k*n+j];
 }
@@ -26,18 +26,18 @@ __global__ void aux(int * dA, const int n, const int k){
 Floyd-Warshall Algorithm
 *********************************************************************/
 void floyd(int * dA, const int n){
-	for(int k=0;k<n;k++){
-		aux<<<(n*n+THREADS_PER_BLOCK)/(THREADS_PER_BLOCK),THREADS_PER_BLOCK>>>(dA,n,k);
-		cudaDeviceSynchronize();
-	}
+  for(int k=0;k<n;k++){
+    aux<<<(n*n+THREADS_PER_BLOCK)/(THREADS_PER_BLOCK),THREADS_PER_BLOCK>>>(dA,n,k);
+    cudaDeviceSynchronize();
+  }
 }
 
 /*********************************************************************
 Print Array
 *********************************************************************/
 void printA(int * A, const int n){
-	for(int i=0;i<n;i++){
-		for(int j=0;j<n;j++){
+  for(int i=0;i<n;i++){
+    for(int j=0;j<n;j++){
 			printf("%d\t",A[i*n+j]);
 			cudaDeviceSynchronize();
 		}
@@ -52,12 +52,12 @@ void printA(int * A, const int n){
 Serial, used for checking correctness 
 *********************************************************************/
 void serial(int * A, const int n){
-	printA(A,n);
-	for(int k=0;k<n;k++)
-		for(int i=0;i<n;i++)
-			for(int j=0;j<n;j++)
+	// printA(A,n);
+  for(int k=0;k<n;k++)
+    for(int i=0;i<n;i++)
+      for(int j=0;j<n;j++)
 				A[i*n+j] = A[i*n+j] < (A[i*n+k]+A[k*n+j]) ? A[i*n+j] : A[i*n+k]+A[k*n+j];
-	printA(A,n);
+	// printA(A,n);
 }
 
 /*********************************************************************
@@ -110,6 +110,7 @@ int main(int argc, char *argv[]) {
 
 	// run the algorithm
   floyd(dA,n);
+	// serial(A, n);
 
 	clock_t after = clock();
 	printf("Execution Time: %f\n", (float)(after-before)/CLOCKS_PER_SEC);
@@ -124,7 +125,6 @@ int main(int argc, char *argv[]) {
   cudaFree(dA);
   cudaDeviceSynchronize();
 	
-	//serial(n);
   return 0;
 }
 
