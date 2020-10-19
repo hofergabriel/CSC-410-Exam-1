@@ -61,7 +61,11 @@ void serial(int * A, const int n){
 /*********************************************************************
 Usage Statement
 *********************************************************************/
-void Usage(){ printf("Usage: ./cuda [-r low_power high_power] [-c low_power high_power]\n"); }
+void Usage(){ 
+	printf("Usage: ./cuda [-r low_power high_power] [-c low_power high_power]\n"); 
+	printf("\t-r: runs Floyd's algorithm in parallel on range of powers of two\n");
+	printf("\t-c: runs correctness tests on range of powers of two\n");
+}
 
 /*********************************************************************
 Make Random Matrix 
@@ -81,8 +85,6 @@ int * makeMatrix(const int n){
 Main
 *********************************************************************/
 void correctness(const int low, const int high){
-	// int low = atoi(argv[2]);
-	// int high = atoi(argv[3]);
 	for(int n = pow(2,low); n <= pow(2,high); n*=2){
 		int * A = makeMatrix(n);
 		int * B = (int *)malloc(n*n*sizeof(int));
@@ -114,13 +116,10 @@ void correctness(const int low, const int high){
 	printf("ALL SAME");
 }
 
-
 /*********************************************************************
 Main
 *********************************************************************/
 void range(const int low, const int high){
-	// int low = atoi(argv[2]);
-	// int high = atoi(argv[3]);
 	for(int n = pow(2,low); n <= pow(2,high); n*=2){
 		int * A = makeMatrix(n);
   	int Asize = n*n*sizeof(int);
@@ -150,6 +149,8 @@ int main(int argc, char *argv[]) {
 		correctness(atoi(argv[2]),atoi(argv[3]));	
 	} else if(strcmp(argv[1],"-r")==0){
 		range(atoi(argv[2]),atoi(argv[3]));	
+	} else if(strcmp(argv[1],"-h")==0){
+		Usage();
 	}
   return 0;
 }
