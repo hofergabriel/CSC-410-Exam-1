@@ -16,10 +16,11 @@ Floyd helper (auxiliary)
 *********************************************************************/
 __global__ void aux(int * dA, const int n, const int k){
   int index = threadIdx.x + blockIdx.x * blockDim.x;
-  if(index > n*n) return;
+  if(index >= n*n) return;
   __syncthreads();
   int i = index / n, j = index % n;
   dA[i*n+j] = dA[i*n+j] < (dA[i*n+k]+dA[k*n+j]) ? dA[i*n+j] : dA[i*n+k]+dA[k*n+j];
+  __syncthreads();
 }
 
 /*********************************************************************
@@ -101,8 +102,17 @@ void correctness(const int low, const int high){
     bool foundDiff=false;
     for(int i=0;i<n;i++)
       for(int j=0;j<n;j++)
-        if(B[i*n+j]!=A[i*n+j])
+        if(B[i*n+j]!=A[i*n+j]){
           foundDiff=true;
+          printf("A[idx]: %d\n",A[i*n+j]);
+          printf("B[idx]: %d\n",B[i*n+j]);
+          printf("n: %d\n",n);
+          return;
+        }
+
+
+    printA(A,n);
+    printA(B,n);
 
     cudaFree(dA);
     free(A);
