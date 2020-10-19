@@ -8,6 +8,8 @@ Course: CSC-410 Parallel Computing
 #include <math.h> 
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
+#include <stdbool.h>
 #include <omp.h>
 const int inf = 32768;
 
@@ -54,35 +56,65 @@ Usage Statement
 *********************************************************************/
 void Usage(){ printf("Usage: ./cuda -N n_integer\n"); }
 
+///////////////////////////////////////////////////////////////////////////
+/*********************************************************************
+Main
+*********************************************************************/
+void correctness(const int low, const int high){
+  for(int n = pow(2,low); n <= pow(2,high); n*=2){
+    int * A = makeMatrix(n);
+    int * B = (int *)malloc(n*n*sizeof(int));
+    int Asize = n*n*sizeof(int);
+    memcpy(B, A, Asize);
+    serial(B,n);
+    floyd(A,n);
+
+    bool foundDiff=false;
+    for(int i=0;i<n;i++)
+      for(int j=0;j<n;j++)
+        if(B[i*n+j]!=A[i*n+j])
+          foundDiff=true;
+
+    free(A);
+    free(B);
+    if(foundDiff){
+      printf("FOUND DIFFERENCE");
+      return;
+    }
+  }
+  printf("ALL SAME");
+}
+
+/*********************************************************************
+Main
+*********************************************************************/
+void range(const int low, const int high){
+  for(int n = pow(2,low); n <= pow(2,high); n*=2){
+    int * A = makeMatrix(n);
+    double start = omp_get_wtime();
+    floyd(A,n);
+	  double end = omp_get_wtime();
+	  printf("%d, %f\n", n, end-start);
+    free(A);
+  }
+}
+
 /*********************************************************************
 Main
 *********************************************************************/
 int main(int argc, char *argv[]) {
-	if(argc==1) {
-		Usage();
-		return 0;
-	}
-	// convert n from cstring to integer
-  int n = atoi(argv[2]);
-	// allocate memory for graph
-	int * A = makeMatrix(n);
-
-	double start = omp_get_wtime();
-  serial(A,n);
-	double end = omp_get_wtime();
-	printf("Serial Execution Time:   %f\n", end-start);
-
-  start = omp_get_wtime();
-  floyd(A,n);
-	end = omp_get_wtime();
-	printf("Parallel Execution Time: %f\n", end-start);
-
-	free(A);	
+  if(argc==1) {
+    Usage();
+    return 0;
+  }
+  if(strcmp(argv[1],"-c")==0){
+    correctness(atoi(argv[2]),atoi(argv[3])); 
+  } else if(strcmp(argv[1],"-r")==0){
+    range(atoi(argv[2]),atoi(argv[3])); 
+  } else if(strcmp(argv[1],"-h")==0){
+    Usage();
+  }
   return 0;
 }
-
-
-
-
 
 
