@@ -54,9 +54,12 @@ int * makeMatrix(const int n){
 /*********************************************************************
 Usage Statement
 *********************************************************************/
-void Usage(){ printf("Usage: ./cuda -N n_integer\n"); }
+void Usage(){ 
+  printf("Usage: ./cuda [-r low_power high_power] [-c low_power high_power]\n"); 
+  printf("\t-r: runs Floyd's algorithm in parallel on range of powers of two\n");
+  printf("\t-c: runs correctness tests on range of powers of two\n");
+}
 
-///////////////////////////////////////////////////////////////////////////
 /*********************************************************************
 Main
 *********************************************************************/

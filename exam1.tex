@@ -41,8 +41,6 @@
 7356111@linux09 CSC-410-Exam-1 >>make
 gcc openmp.c -fopenmp -lm -o openmp
 nvcc cuda.cu -o cuda
-pdflatex exam1.tex
-...
 \end{verbatim}
 \subsection*{Usage Statement}
 \begin{verbatim}
@@ -81,7 +79,7 @@ Usage: ./cuda [-r low_power high_power] [-c low_power high_power]
   2048, 7.835085
   4096, 60.018689
 \end{verbatim}
-\subsection*{Data in a Table as Requested}
+\subsection*{Data in a Table}
 \begin{center}
   \begin{tabular}{ |c|c|c| } 
     \hline
@@ -105,38 +103,41 @@ Usage: ./cuda [-r low_power high_power] [-c low_power high_power]
 \newpage
 \subsection*{Usage Examples (Correctness Tests)}
 \begin{verbatim}
-  7356111@linux09 CSC-410-Exam-1 >>./cuda -c 1 10
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  ALL SAME:)
+7356111@linux09 CSC-410-Exam-1 >>./cuda -c 1 10
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+ALL SAME:)
 \end{verbatim}
 \begin{verbatim}
-  7356111@linux09 CSC-410-Exam-1 >>./openmp -c 1 10
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  SAME
-  ALL SAME:)
+7356111@linux09 CSC-410-Exam-1 >>./openmp -c 1 10
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+SAME
+ALL SAME:)
 \end{verbatim}
-The two listings above show how to run the correctness tests from the command line. Each line that prints "SAME" is a successful test. Each test is run on a different value of n.
+For both options -r and -c, two integers are required to follow. These two integers are the range for $p$.
+The two listings above show how to run cuda.cu and openmp.c from the command line using the -c option (which
+runs correctness tests). Each output line that prints "SAME" is a successful test. 
+And, "ALL SAME:)" means that all tests passed.  Each test is run on a different value of n calculated as follows:
 \[
   n = 2^p 
 \]
-Where $p$ is a number between 1 and 10 in this case.
+Where $p$ is a number between 1 and 10 which were the low\_power and high\_power arguments passed to the program.
 
 \subsection*{Contents of exam1.tgz}
 \begin{enumerate}
@@ -148,7 +149,7 @@ Where $p$ is a number between 1 and 10 in this case.
 
 %------------------------------------------------------------------------------
 \newpage
-\subsection*{Functions and Program Structure}
+\subsection*{Functions}
 \begin{itemize}
   \item \textbf{main} calls either usage or range or correctness depending on the 
 command line arguments. 
@@ -166,6 +167,11 @@ output of our parallelized function to the output of serial.
   \item \textbf{Range} runs Floyd's algorithm in parallel for a range of values
 of n. we iterate from small power of 2 to a greater power of 2. 
   \item \textbf{printA} simply prints the 2D array, with a tab separating each column.
+\end{itemize}
+\subsection*{Files}
+\begin{itemize}
+  \item \textbf{cuda.cu} contains entire CUDA implementation of floyd's algorithm.
+  \item \textbf{openmp.c} constains entire OpenMP implementation of floyd's algorithm.
 \end{itemize}
 %--------------------------------------------------------------------
 \newpage
@@ -207,7 +213,7 @@ In the OpenMP version of Floyd's algorithm, we insert two pragmas for the second
 third nested for loops.
 
 \subsubsection*{Serial (Non-Parallelized)}
-\begin{lstlisting}[frame=single,language=C,caption=OpenMP Floyd \label{code:make}]
+\begin{lstlisting}[frame=single,language=C,caption=Serial Floyd \label{code:make}]
 void serial(int * A, const int n){
   for(int k=0;k<n;k++)
     for(int i=0;i<n;i++)
@@ -255,8 +261,11 @@ void correctness(const int low, const int high){
   printf("ALL SAME:)\n\n");
 }
 \end{lstlisting}
-correctness shows how we 
 
-
+\newpage
+\subsection*{Experimental Serial Fraction}
+\[
+  e= \frac{\frac{1}{\psi}-\frac{1}{p}}{1-\frac{1}{p}}
+\]
 \end{document}
 
